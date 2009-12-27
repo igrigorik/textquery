@@ -1,0 +1,28 @@
+
+grammar TextQuery
+
+  rule expression
+     value
+  end
+
+  rule space
+    [\s]*
+  end
+
+  rule word
+    [^\s\(\)]+ {
+      def eval(text)
+        not text.match(/^#{query}\s|\s#{query}\s|\s#{query}$|^#{query}$/).nil?
+      end
+
+      def query
+        Regexp.escape(text_value)
+      end
+    }
+  end
+
+  rule value
+    word
+  end
+
+end
