@@ -1,21 +1,20 @@
 require "rubygems"
-require "treetop"
-require "pp"
-require "ruby-debug"
 require "spec"
+require "pp"
+
+require "lib/textquery"
 
 # Resources:
 # - http://github.com/nathansobo/treetop
 # - http://github.com/nathansobo/treetop/blob/master/examples/lambda_calculus/arithmetic.treetop
 # - http://snippets.dzone.com/tag/Treetop
 # - http://treetop.rubyforge.org/index.html
+# - http://en.wikipedia.org/wiki/Parsing_expression_grammar
 #
 
-Treetop.load "textquery"
-
-describe TextQueryParser do
+describe TextQuery do
   before(:all) do
-    @parser = TextQueryParser.new
+    @parser = TextQuery.new
   end
 
   def parse(input)
@@ -158,4 +157,16 @@ describe TextQueryParser do
     parse("some text AND -'exact match'").eval("some exact match").should be_false
   end
 
+  it "should wrap the grammar API" do
+    TextQuery.new("'to be' OR NOT 'to_be'").match?("to be").should be_true
+    TextQuery.new("-test").match?("some string of text").should be_true
+    TextQuery.new("NOT test").match?("some string of text").should be_true
+    TextQuery.new("a AND b").match?("b a").should be_true
+    TextQuery.new("a AND b").match?("a c").should be_false
+
+    q = TextQuery.new("a AND (b AND NOT (c OR d))")
+    q.match?("d a b").should be_false
+    q.match?("b").should be_false
+    q.match?("a b cdefg").should be_true
+  end
 end
