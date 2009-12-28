@@ -145,4 +145,17 @@ describe TextQueryParser do
     # shakespeare got nothin' on ruby...
     parse("'to be' OR NOT 'to be'").eval("to be").should be_true
   end
+
+  it "should treat spaces as implicit ANDs" do
+    parse("a b").eval("a c b").should be_true
+    parse("b a c").eval("a c b").should be_true
+    parse("b a c").eval("a c").should be_false
+
+    parse("some text AND 'exact match'").eval("some exact match text").should be_true
+    parse("some text AND 'exact match'").eval("some exact text match").should be_false
+
+    parse("some text AND -'exact match'").eval("some exact text match").should be_true
+    parse("some text AND -'exact match'").eval("some exact match").should be_false
+  end
+
 end

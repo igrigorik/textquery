@@ -11,7 +11,12 @@ grammar TextQuery
         operator.eval(op1.eval(text), op2.eval(text))
       end
     }
-   
+    /
+    op1:value [\s]+ op2:expression {
+        def eval(text)
+          op1.eval(text) && op2.eval(text)
+        end
+      }
   end
 
   rule binary
