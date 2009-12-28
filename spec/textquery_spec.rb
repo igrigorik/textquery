@@ -127,4 +127,22 @@ describe TextQueryParser do
     parse("(NOT a) AND (NOT b) AND (NOT c)").eval("e").should be_true
     parse("NOT a AND NOT b AND NOT c").eval("e").should be_true
   end
+
+  it "should accept quoted strings" do
+    parse("'some text'").eval("some text").should be_true
+    parse("'some text string'").eval("some text").should be_false
+
+    parse("'some text string'").eval("some text 1 string").should be_false
+    parse("-'some text string'").eval("some text 1 string").should be_true
+
+    parse("a AND -'a b'").eval("a b c").should be_false
+    parse("a AND -'a b'").eval("a c b").should be_true
+
+    parse("(a OR b) AND (-'a b c')").eval("a b c").should be_false
+    parse("(a OR b) AND (-'a b c')").eval("a c b").should be_true
+    parse("(a AND b) AND (-'a b c')").eval("a c b").should be_true
+
+    # shakespeare got nothin' on ruby...
+    parse("'to be' OR NOT 'to be'").eval("to be").should be_true
+  end
 end

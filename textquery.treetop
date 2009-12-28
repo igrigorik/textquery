@@ -52,6 +52,18 @@ grammar TextQuery
     }
   end
 
+  rule words
+    [^\']+ {
+      def eval(text)
+        not text.match(/^#{query}\s|\s#{query}\s|\s#{query}$|^#{query}$/).nil?
+      end
+
+      def query
+        Regexp.escape(text_value)
+      end
+    }
+  end
+
   rule value
     '(' space expression space ')' {
        def eval(text)
@@ -62,6 +74,12 @@ grammar TextQuery
     operator:unary space value {
       def eval(text)
         operator.eval(value.eval(text))
+      end
+    }
+    /
+    "'" space words space "'" {
+      def eval(text)
+        words.eval(text)
       end
     }
     /
