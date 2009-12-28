@@ -168,5 +168,7 @@ describe TextQuery do
     q.match?("d a b").should be_false
     q.match?("b").should be_false
     q.match?("a b cdefg").should be_true
+    q.eval("a b cdefg").should be_true
+
   end
 end

@@ -1,10 +1,3 @@
-# #--
-# Copyright (C)2009 Ilya Grigorik
-#
-# You can redistribute this under the terms of the Ruby
-# license See file LICENSE for details
-# #--
-
 require 'treetop'
 
 class TextQuery
