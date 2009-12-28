@@ -2,7 +2,23 @@
 grammar TextQuery
 
   rule expression
-     value
+     logical / value
+  end
+
+  rule logical
+    op1:value space operator:binary space op2:expression {
+      def eval(text)
+        operator.eval(op1.eval(text), op2.eval(text))
+      end
+    }
+  end
+
+  rule binary
+    'AND' {
+      def eval(a,b)
+        a && b
+      end
+    }
   end
 
   rule space

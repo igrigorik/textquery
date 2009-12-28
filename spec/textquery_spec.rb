@@ -40,4 +40,13 @@ describe TextQueryParser do
     parse("text").eval("string of texts stuff").should be_false
     parse("$^").eval("string of $^* stuff").should be_false
   end
+
+  it "should accept logical AND" do
+    parse("a AND b").eval("c").should be_false
+    parse("a AND b").eval("a").should be_false
+    parse("a AND b").eval("b").should be_false
+
+    parse("a AND b").eval("a b").should be_true
+    parse("a AND b").eval("a c b").should be_true
+  end
 end
