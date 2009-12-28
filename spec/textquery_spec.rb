@@ -69,5 +69,17 @@ describe TextQueryParser do
     parse("a AND b OR c").eval("c").should be_false
     parse("a AND b OR c").eval("b").should be_false
   end
-  
+
+  it "should accept logical NOT" do
+    %w[- NOT].each do |operator|
+      parse("#{operator} a").eval("a").should be_false
+      parse("#{operator} #{operator} a").eval("a").should be_true
+
+      parse("#{operator} a OR a").eval("a").should be_true
+      parse("a OR #{operator} a").eval("a").should be_true
+
+      parse("b AND #{operator} a").eval("b").should be_true
+      parse("b AND #{operator} a").eval("a").should be_false
+    end
+  end
 end

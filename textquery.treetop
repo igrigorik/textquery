@@ -27,6 +27,14 @@ grammar TextQuery
     }
   end
 
+  rule unary
+    ('-' / 'NOT') {
+      def eval(a)
+        not a
+      end
+    }
+  end
+
   rule space
     [\s]*
   end
@@ -44,6 +52,12 @@ grammar TextQuery
   end
 
   rule value
+    operator:unary space value {
+      def eval(text)
+        operator.eval(value.eval(text))
+      end
+    }
+    /
     word
   end
 
