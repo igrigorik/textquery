@@ -82,4 +82,49 @@ describe TextQueryParser do
       parse("b AND #{operator} a").eval("a").should be_false
     end
   end
+
+  it "should evaluate sub expressions" do
+    parse("(a AND b)").eval("a b").should be_true
+    parse("(a OR b)").eval("a b").should be_true
+    parse("(a AND NOT b)").eval("a b").should be_false
+
+    parse("(a AND b) OR c").eval("a b c").should be_true
+    parse("(a AND b) OR c").eval("a b").should be_true
+    parse("(a AND b) OR c").eval("a c").should be_true
+    
+    parse("(a AND b) OR c").eval("c").should be_true
+    parse("a AND (b OR c)").eval("c").should be_false
+    
+    # for the win...
+    parse("a AND (b AND (c OR d))").eval("d a b").should be_true
+  end
+
+  it "should not trip up on placement of brackets" do
+    parse("a AND (-b)").eval("a b").should    == parse("a AND -(b)").eval("a b")
+    parse("(-a) AND b").eval("a b").should    == parse("-(a) AND b").eval("a b")
+    parse("-(a) AND -(b)").eval("a b").should == parse("(-a) AND (-b)").eval("a b")
+
+    parse("a OR (-b)").eval("a b").should     == parse("a OR -(b)").eval("a b")
+    parse("(-a) OR b").eval("a b").should     == parse("-(a) OR b").eval("a b")
+    parse("(-a) OR (-b)").eval("a b").should  == parse("-(a) OR -(b)").eval("a b")
+
+    parse("a AND (b OR c)").eval("a b c").should be_true
+    parse("a AND (b OR c)").eval("a b").should be_true
+    parse("a AND (b OR c)").eval("a c").should be_true
+
+    parse("(NOT a) OR a").eval("a").should be_true
+    parse("(NOT a) AND (NOT b) AND (NOT c)").eval("b").should be_false
+    parse("a AND (b AND (c OR NOT d))").eval("a b d").should be_false
+    parse("a AND (b AND (c OR NOT d))").eval("a b c").should be_true
+    parse("a AND (b AND (c OR NOT d))").eval("a b e").should be_true
+    
+    parse("a AND (b AND NOT (c OR d))").eval("a b").should be_true
+    parse("a AND (b AND NOT (c OR d))").eval("a b c").should be_false
+    parse("a AND (b AND NOT (c OR d))").eval("a b d").should be_false
+
+    parse("-a AND -b AND -c").eval("e").should be_true
+    parse("(-a) AND (-b) AND (-c)").eval("e").should be_true
+    parse("(NOT a) AND (NOT b) AND (NOT c)").eval("e").should be_true
+    parse("NOT a AND NOT b AND NOT c").eval("e").should be_true
+  end
 end

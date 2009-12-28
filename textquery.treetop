@@ -11,6 +11,7 @@ grammar TextQuery
         operator.eval(op1.eval(text), op2.eval(text))
       end
     }
+   
   end
 
   rule binary
@@ -52,6 +53,12 @@ grammar TextQuery
   end
 
   rule value
+    '(' space expression space ')' {
+       def eval(text)
+         expression.eval(text)
+       end
+    }
+    /
     operator:unary space value {
       def eval(text)
         operator.eval(value.eval(text))
