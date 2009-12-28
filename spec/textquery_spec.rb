@@ -49,4 +49,13 @@ describe TextQueryParser do
     parse("a AND b").eval("a b").should be_true
     parse("a AND b").eval("a c b").should be_true
   end
+  
+  it "should accept logical OR" do
+    parse("a OR b").eval("c").should be_false
+    parse("a OR b").eval("a").should be_true
+    parse("a OR b").eval("b").should be_true
+
+    parse("a OR b").eval("a b").should be_true
+    parse("a OR b").eval("a c b").should be_true
+  end
 end

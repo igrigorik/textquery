@@ -19,6 +19,12 @@ grammar TextQuery
         a && b
       end
     }
+    /
+    'OR' {
+      def eval(a,b)
+        a || b
+      end
+    }
   end
 
   rule space
