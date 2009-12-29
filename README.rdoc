@@ -1,8 +1,8 @@
 = TextQuery
 
 Does it match? When regular expressions are not enough, textquery is the answer. For
-example, regular expressions cannot evaluate recursive rules, and often result in
-overly verbosed and complicated expressions.
+example, regular expressions cannot evaluate recursive rules and often result in
+overly verbose and complicated expressions.
 
 Textquery is a simple PEG grammar with support for:
 - AND (spaces are implicit AND's)

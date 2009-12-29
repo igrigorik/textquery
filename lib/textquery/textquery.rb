@@ -1,8 +1,19 @@
 require 'treetop'
 
+class WordMatch < Treetop::Runtime::SyntaxNode
+  def eval(text)
+    not text.match(/^#{query}\s|\s#{query}\s|\s#{query}$|^#{query}$/).nil?
+  end
+
+  def query
+    Regexp.escape(text_value)
+  end
+end
+
+Treetop.load File.dirname(__FILE__) + "/textquery_grammar"
+
 class TextQuery
   def initialize(query = '')
-    Treetop.load File.dirname(__FILE__) + "/textquery_grammar"
     @parser = TextQueryGrammarParser.new
     @query  = nil
 

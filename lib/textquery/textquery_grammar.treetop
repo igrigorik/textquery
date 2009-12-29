@@ -45,27 +45,11 @@ grammar TextQueryGrammar
   end
 
   rule word
-    [^\s\(\)]+ {
-      def eval(text)
-        not text.match(/^#{query}\s|\s#{query}\s|\s#{query}$|^#{query}$/).nil?
-      end
-
-      def query
-        Regexp.escape(text_value)
-      end
-    }
+    [^\s\(\)]+ <WordMatch>
   end
 
   rule words
-    [^\']+ {
-      def eval(text)
-        not text.match(/^#{query}\s|\s#{query}\s|\s#{query}$|^#{query}$/).nil?
-      end
-
-      def query
-        Regexp.escape(text_value)
-      end
-    }
+    [^\']+ <WordMatch>
   end
 
   rule value
