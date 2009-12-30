@@ -160,14 +160,35 @@ describe TextQuery do
     q.eval("a b cdefg").should be_true
   end
 
-  it "should work on CJK text" do
-    JP = "に入れるわけにはいかないので、プラグインの出力が同一であることでもって同一性を判定する"
+  it "should support fuzzy matching" do
+    parse("a~").eval("adf").should be_true
+    parse("~a").eval("dfa").should be_true
+    parse("~a~").eval("daf").should be_true
 
-    q = TextQuery.new("に入".mb_chars, :delim => '')
-    q.eval(JP).should be_true
-    q.eval("けにはい").should be_false
+    parse("1~a~1").eval("daf").should be_true
+    parse("2~a~1").eval("daf").should be_false
+    parse("1~a~2").eval("daf").should be_false
 
-    q.parse("れるわ AND が同".mb_chars).eval(JP).should be_true
-    q.parse("れるわ AND NOT す".mb_chars).eval(JP).should be_false
+    parse("~a~3").eval("daffy").should be_true
+    parse("a~1").eval("adf").should be_false
+    
+    parse("a~1 AND b").eval("adf b").should be_false
+    parse("a~2 AND b").eval("adf b").should be_true
+    parse("a~3 AND b").eval("adf b").should be_false
   end
+
+  it "should work on CJK text" do
+    JP = "仕様変更は出し尽くしてしまいß"
+
+    q = TextQuery.new("変更", :delim => '')
+    q.eval(JP).should be_true
+    q.eval("変ま").should be_false
+    q.parse("は出").eval(JP).should be_true
+
+    q = TextQuery.new
+    q.parse("~出~").eval(JP).should be_true
+    q.parse("~出~ AND NOT ~尽~").eval(JP).should be_false
+    q.parse("~更は出~ OR ~尽く~").eval(JP).should be_true
+  end
+
 end

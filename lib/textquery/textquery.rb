@@ -8,7 +8,17 @@ end
 
 class WordMatch < Treetop::Runtime::SyntaxNode
   def eval(text, opt)
-    not text.match("^#{query}#{opt[:delim]}|#{opt[:delim]}#{query}#{opt[:delim]}|#{opt[:delim]}#{query}$|^#{query}$").nil?
+    fuzzy = query.match(/(\d)*(~)?([^~]+)(~)?(\d)*$/)
+
+    q = []
+    q.push "."                                    if fuzzy[2]
+    q.push fuzzy[1].nil? ? "*" : "{#{fuzzy[1]}}"  if fuzzy[2]
+    q.push fuzzy[3]
+    q.push "."                                    if fuzzy[4]
+    q.push fuzzy[5].nil? ? "*" : "{#{fuzzy[5]}}"  if fuzzy[4]
+    q = q.join
+
+    not text.match("^#{q}#{opt[:delim]}|#{opt[:delim]}#{q}#{opt[:delim]}|#{opt[:delim]}#{q}$|^#{q}$").nil?
   end
 
   def query
