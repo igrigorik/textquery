@@ -18,7 +18,15 @@ class WordMatch < Treetop::Runtime::SyntaxNode
     q.push fuzzy[5].nil? ? "*" : "{#{fuzzy[5]}}"  if fuzzy[4]
     q = q.join
 
-    not text.match("^#{q}#{opt[:delim]}|#{opt[:delim]}#{q}#{opt[:delim]}|#{opt[:delim]}#{q}$|^#{q}$").nil?
+    regex = "^#{q}#{opt[:delim]}|#{opt[:delim]}#{q}#{opt[:delim]}|#{opt[:delim]}#{q}$|^#{q}$"
+
+    if opt[:ignorecase]
+      regex = Regexp.new(regex, Regexp::IGNORECASE, 'utf8')
+    else
+      regex = Regexp.new(regex, nil, 'utf8')
+    end
+
+    not text.match(regex).nil?
   end
 
   def query

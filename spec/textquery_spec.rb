@@ -191,4 +191,12 @@ describe TextQuery do
     q.parse("~更は出~ OR ~尽く~").eval(JP).should be_true
   end
 
+  it "should be case insensitive" do
+    TextQuery.new("a", :ignorecase => true).match?("A b cD").should be_true
+    TextQuery.new("a AND CD", :ignorecase => true).match?("A b cD").should be_true
+
+    TextQuery.new("a", :ignorecase => false).match?("A b cD").should be_false
+    TextQuery.new("a AND CD", :ignorecase => false).match?("A b cD").should be_false
+  end
+
 end
