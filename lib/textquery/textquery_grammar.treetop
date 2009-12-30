@@ -6,14 +6,14 @@ grammar TextQueryGrammar
 
   rule logical
     op1:value space operator:binary space op2:expression {
-      def eval(text)
-        operator.eval(op1.eval(text), op2.eval(text))
+      def eval(text, opt)
+        operator.eval(op1.eval(text, opt), op2.eval(text, opt))
       end
     }
     /
     op1:value [\s]+ op2:expression {
-        def eval(text)
-          op1.eval(text) && op2.eval(text)
+        def eval(text, opt)
+          op1.eval(text, opt) && op2.eval(text, opt)
         end
       }
   end
@@ -54,20 +54,20 @@ grammar TextQueryGrammar
 
   rule value
     '(' space expression space ')' {
-       def eval(text)
-         expression.eval(text)
+       def eval(text, opt)
+         expression.eval(text, opt)
        end
     }
     /
     operator:unary space value {
-      def eval(text)
-        operator.eval(value.eval(text))
+      def eval(text, opt)
+        operator.eval(value.eval(text, opt))
       end
     }
     /
     "'" space words space "'" {
-      def eval(text)
-        words.eval(text)
+      def eval(text, opt)
+        words.eval(text, opt)
       end
     }
     /

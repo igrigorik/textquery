@@ -18,18 +18,7 @@ describe TextQuery do
   end
 
   def parse(input)
-    result = @parser.parse(input)
-    unless result
-      puts @parser.terminal_failures.join("\n")
-    end
-    result
-  end
-
-  it "should accept any non space separated sequence" do
-    %w[query 123 text123 #tag $%*].each do |input|
-      @parser.parse(input).text_value.should == input
-      parse(input).eval(input).should be_true
-    end
+    @parser.parse(input)
   end
 
   it "should look for exact word boundary match" do
@@ -48,7 +37,7 @@ describe TextQuery do
     parse("a AND b").eval("a b").should be_true
     parse("a AND b").eval("a c b").should be_true
   end
-  
+
   it "should accept logical OR" do
     parse("a OR b").eval("c").should be_false
     parse("a OR b").eval("a").should be_true
@@ -90,10 +79,10 @@ describe TextQuery do
     parse("(a AND b) OR c").eval("a b c").should be_true
     parse("(a AND b) OR c").eval("a b").should be_true
     parse("(a AND b) OR c").eval("a c").should be_true
-    
+
     parse("(a AND b) OR c").eval("c").should be_true
     parse("a AND (b OR c)").eval("c").should be_false
-    
+
     # for the win...
     parse("a AND (b AND (c OR d))").eval("d a b").should be_true
   end
@@ -116,7 +105,7 @@ describe TextQuery do
     parse("a AND (b AND (c OR NOT d))").eval("a b d").should be_false
     parse("a AND (b AND (c OR NOT d))").eval("a b c").should be_true
     parse("a AND (b AND (c OR NOT d))").eval("a b e").should be_true
-    
+
     parse("a AND (b AND NOT (c OR d))").eval("a b").should be_true
     parse("a AND (b AND NOT (c OR d))").eval("a b c").should be_false
     parse("a AND (b AND NOT (c OR d))").eval("a b d").should be_false
@@ -169,6 +158,16 @@ describe TextQuery do
     q.match?("b").should be_false
     q.match?("a b cdefg").should be_true
     q.eval("a b cdefg").should be_true
+  end
 
+  it "should work on CJK text" do
+    JP = "に入れるわけにはいかないので、プラグインの出力が同一であることでもって同一性を判定する"
+
+    q = TextQuery.new("に入".mb_chars, :delim => '')
+    q.eval(JP).should be_true
+    q.eval("けにはい").should be_false
+
+    q.parse("れるわ AND が同".mb_chars).eval(JP).should be_true
+    q.parse("れるわ AND NOT す".mb_chars).eval(JP).should be_false
   end
 end
