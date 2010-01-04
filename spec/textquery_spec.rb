@@ -199,4 +199,29 @@ describe TextQuery do
     TextQuery.new("a AND CD", :ignorecase => false).match?("A b cD").should be_false
   end
 
+  context 'delimiters' do
+    it 'should default to space delimiter' do
+      TextQuery.new("a").match?("a b").should be_true
+      TextQuery.new("a").match?("a*b").should be_false
+    end
+
+    it 'should accept a string delimiter' do
+      TextQuery.new("a", :delim => "*").match?("a*b").should be_true
+      TextQuery.new("a", :delim => "*").match?("a b").should be_false
+    end
+
+    it 'should accept an array of delimiters' do
+      TextQuery.new("a", :delim => ["*"]).match?("a*b").should be_true
+    end
+
+    it 'should OR delimiters together when provided as an array' do
+      TextQuery.new("a", :delim => ["*", "|"]).match?("a|b").should be_true
+      TextQuery.new("a", :delim => ["*", "|"]).match?("a*b").should be_true
+      TextQuery.new("a", :delim => ["*", "|"]).match?("a b").should be_false
+    end
+
+    it 'should not match just the delimiter' do
+      TextQuery.new("a*b", :delim => ["*", "<"]).match?("over<under").should be_false
+    end
+  end
 end
