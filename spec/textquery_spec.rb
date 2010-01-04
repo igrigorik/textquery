@@ -132,6 +132,7 @@ describe TextQuery do
 
     # shakespeare got nothin' on ruby...
     parse("'to be' OR NOT 'to be'").eval("to be").should be_true
+    parse('"to be" OR NOT "to be"').eval("to be").should be_true
   end
 
   it "should treat spaces as implicit ANDs" do
