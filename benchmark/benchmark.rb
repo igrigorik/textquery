@@ -15,7 +15,7 @@ File.open('benchmark/sample.txt').each_line{ |s|
   text << s
 }
 
-n = 1000
+n = 10000
 Benchmark.bm do |x|
   x.report do
     n.times do
