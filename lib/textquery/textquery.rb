@@ -7,6 +7,10 @@ if RUBY_VERSION < '1.9'
   $KCODE = 'u'
 end
 
+
+BLAH = Regexp.new("(\d)*(~)?([^~]+)(~)?(\d)*$")
+
+
 class WordMatch < Treetop::Runtime::SyntaxNode
   
   @@regex ||= {}
@@ -14,7 +18,7 @@ class WordMatch < Treetop::Runtime::SyntaxNode
   
   def eval(text, opt)
  
-    fuzzy = query.match(/(\d)*(~)?([^~]+)(~)?(\d)*$/)
+    fuzzy = query.match(BLAH)
 
     q = []
     q.push "."                                    if fuzzy[2]
@@ -27,8 +31,8 @@ class WordMatch < Treetop::Runtime::SyntaxNode
     regex = "^#{q}#{opt[:delim]}|#{opt[:delim]}#{q}#{opt[:delim]}|#{opt[:delim]}#{q}$|^#{q}$"
     
     unless @@regex[regex] then
-      @@regex[regex] = Regexp.new(regex, Regexp::IGNORECASE, 'utf8')
-      @@regex_case[regex] = Regexp.new(regex, nil, 'utf8')
+      @@regex[regex] = Regexp.new(regex, Regexp::IGNORECASE)
+      @@regex_case[regex] = Regexp.new(regex, nil)
     end
 
     if opt[:ignorecase]

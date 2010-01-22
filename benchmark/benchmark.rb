@@ -1,5 +1,10 @@
+# encoding: utf-8
+
+require 'rubygems'
 require 'benchmark'
-require 'lib/textquery.rb'
+#require 'unprof'
+require './lib/textquery.rb'
+
 
 queries = []
 queries << TextQuery.new("イケア OR イケヤ")
@@ -10,11 +15,13 @@ File.open('benchmark/sample.txt').each_line{ |s|
   text << s
 }
 
-n = 500000
+n = 1000
 Benchmark.bm do |x|
   x.report do
-    queries.each do |q|
-      q.match?(text)
+    n.times do
+      queries.each do |q|
+        q.match?(text)
+      end
     end
   end
 end
