@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'treetop'
 
 # make it utf-8 compatible
@@ -6,9 +7,18 @@ if RUBY_VERSION < '1.9'
   $KCODE = 'u'
 end
 
+
+FUZZY = /(\d)*(~)?([^~]+)(~)?(\d)*$/
+
+
 class WordMatch < Treetop::Runtime::SyntaxNode
+  
+  @@regex ||= {}
+  @@regex_case ||= {}
+  
   def eval(text, opt)
-    fuzzy = query.match(/(\d)*(~)?([^~]+)(~)?(\d)*$/)
+
+    fuzzy = query.match(FUZZY)
 
     q = []
     q.push "."                                    if fuzzy[2]
@@ -17,18 +27,21 @@ class WordMatch < Treetop::Runtime::SyntaxNode
     q.push "."                                    if fuzzy[4]
     q.push fuzzy[5].nil? ? "*" : "{#{fuzzy[5]}}"  if fuzzy[4]
     q = q.join
-
-    regex = "^#{q}#{opt[:delim]}|#{opt[:delim]}#{q}#{opt[:delim]}|#{opt[:delim]}#{q}$|^#{q}$"
-
-    if opt[:ignorecase]
-      regex = Regexp.new(regex, Regexp::IGNORECASE, 'utf8')
-    else
-      regex = Regexp.new(regex, nil, 'utf8')
+    
+    regex = "(^|#{opt[:delim]})#{q}(#{opt[:delim]}|$)"
+    
+    unless @@regex[regex] then
+      @@regex[regex] = Regexp.new(regex, Regexp::IGNORECASE)
+      @@regex_case[regex] = Regexp.new(regex, nil)
     end
 
-    not text.match(regex).nil?
+    if opt[:ignorecase]
+      not text.match(@@regex[regex]).nil?
+    else
+      not text.match(@@regex_case[regex]).nil?
+    end
   end
-
+  
   def query
     Regexp.escape(text_value)
   end
