@@ -50,6 +50,9 @@ end
 
 Treetop.load File.dirname(__FILE__) + "/textquery_grammar"
 
+class TextQueryError < RuntimeError
+end
+
 class TextQuery
   def initialize(query = '', options = {})
     @parser = TextQueryGrammarParser.new
@@ -63,7 +66,7 @@ class TextQuery
     query = query.mb_chars if RUBY_VERSION < '1.9'
     @query = @parser.parse(query)
     if not @query
-      puts @parser.terminal_failures.join("\n")
+      raise TextQueryError, "Could not parse query string '#{query}': #{@parser.terminal_failures.inspect}"
     end
     self
   end
@@ -74,7 +77,7 @@ class TextQuery
     if @query
       @query.eval(input, @options)
     else
-      puts 'no query specified'
+      raise TextQueryError, 'no query specified'
     end
   end
   alias :match? :eval
