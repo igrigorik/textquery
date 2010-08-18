@@ -48,12 +48,20 @@ grammar TextQueryGrammar
     [^\s\(\)]+ <WordMatch>
   end
 
-  rule words
-    [^'"]+ <WordMatch>
+  rule single_quote
+    [']
   end
 
-  rule quote
-    ['"]
+  rule single_quote_words
+    [^']+ <WordMatch>
+  end
+
+  rule double_quote
+    ["]
+  end
+
+  rule double_quote_words
+    [^"]+ <WordMatch>
   end
 
   rule value
@@ -69,9 +77,15 @@ grammar TextQueryGrammar
       end
     }
     /
-    quote space words space quote {
+    double_quote space double_quote_words space double_quote {
       def eval(text, opt)
-        words.eval(text, opt)
+        double_quote_words.eval(text, opt)
+      end
+    }
+    /
+    single_quote space single_quote_words space single_quote {
+      def eval(text, opt)
+        single_quote_words.eval(text, opt)
       end
     }
     /

@@ -135,6 +135,16 @@ describe TextQuery do
     parse('"to be" OR NOT "to be"').eval("to be").should be_true
   end
 
+  it "should accept mixed quotes inside the exact match queries" do
+    parse("seattle's best").eval("seattle's best").should be_true
+
+    parse("peets OR \"seattle's best\"").eval("peets").should be_true
+    parse("peets OR \"seattle's best\"").eval("seattle's").should be_false
+
+    parse("\"seattle's best\"").eval("seattle's best coffee").should be_true
+    parse('"seattle\'s best"').eval("seattle's best coffee").should be_true
+  end
+
   it "should treat spaces as implicit ANDs" do
     parse("a b").eval("a c b").should be_true
     parse("b a c").eval("a c b").should be_true
@@ -172,7 +182,7 @@ describe TextQuery do
 
     parse("~a~3").eval("daffy").should be_true
     parse("a~1").eval("adf").should be_false
-    
+
     parse("a~1 AND b").eval("adf b").should be_false
     parse("a~2 AND b").eval("adf b").should be_true
     parse("a~3 AND b").eval("adf b").should be_false

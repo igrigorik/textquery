@@ -26,7 +26,8 @@ Gem::Specification.new do |s|
      "lib/textquery.rb",
      "lib/textquery/textquery.rb",
      "lib/textquery/textquery_grammar.treetop",
-     "spec/textquery_spec.rb"
+     "spec/textquery_spec.rb",
+     "textquery.gemspec"
   ]
   s.homepage = %q{http://github.com/igrigorik/textquery}
   s.rdoc_options = ["--charset=UTF-8"]
