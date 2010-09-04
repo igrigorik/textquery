@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require "rubygems"
 require "spec"
 require "pp"

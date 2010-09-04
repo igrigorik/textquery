@@ -1,16 +1,23 @@
 require 'rubygems'
 require 'treetop'
-require 'oniguruma'
 
-include Oniguruma
-
-# make it utf-8 compatible
+# make it utf-8 compatible for < 1.9 Ruby
 if RUBY_VERSION < '1.9'
   require 'active_support'
+  require 'oniguruma'
+
+  include Oniguruma
   $KCODE = 'u'
+
+  RegExp = ORegexp
+  RegExp::IGNORECASE = ORegexp::OPTION_IGNORECASE
+
+else
+  RegExp = Regexp
+  RegExp::IGNORECACASE = Regexp::IGNORECASE
 end
 
-FUZZY = ORegexp.new('(\d)*(~)?([^~]+)(~)?(\d)*$')
+FUZZY = RegExp.new('(\d)*(~)?([^~]+)(~)?(\d)*$')
 
 class WordMatch < Treetop::Runtime::SyntaxNode
 
@@ -18,7 +25,7 @@ class WordMatch < Treetop::Runtime::SyntaxNode
   @@regex_case ||= {}
 
   def eval(text, opt)
-    query = ORegexp.escape(text_value)
+    query = RegExp.escape(text_value)
     qkey  = query + opt[:delim]
 
     if not @@regex[qkey]
@@ -34,8 +41,8 @@ class WordMatch < Treetop::Runtime::SyntaxNode
 
       regex = "(^|#{opt[:delim]})#{q}(#{opt[:delim]}|$)"
 
-      @@regex[qkey] = ORegexp.new(regex, :options => OPTION_IGNORECASE)
-      @@regex_case[qkey] = ORegexp.new(regex, nil)
+      @@regex[qkey] = RegExp.new(regex, :options => RegExp::IGNORECASE)
+      @@regex_case[qkey] = RegExp.new(regex, nil)
     end
 
     if opt[:ignorecase]
@@ -89,6 +96,6 @@ class TextQuery
 
     def update_options(options)
       @options = {:delim => ' '}.merge(options)
-      @options[:delim] = "(#{[@options[:delim]].flatten.map { |opt| ORegexp.escape(opt) }.join("|")})"
+      @options[:delim] = "(#{[@options[:delim]].flatten.map { |opt| RegExp.escape(opt) }.join("|")})"
     end
 end
