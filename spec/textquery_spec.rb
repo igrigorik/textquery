@@ -236,5 +236,23 @@ describe TextQuery do
     it 'should not match just the delimiter' do
       TextQuery.new("a*b", :delim => ["*", "<"]).match?("over<under").should be_false
     end
+    
+    it 'should accept a Regexp as a delimiter' do
+      TextQuery.new("a", :delim => [%r{\b}]).match?("a.b").should be_true
+      TextQuery.new("a b", :delim => [%r{\b}]).match?("a.b").should be_true
+      TextQuery.new("a b", :delim => [%r{\b}]).match?("a.c").should be_false
+    end
+
+    it 'should OR multiple Regexp delimiters and match on all words' do
+      TextQuery.new("cd", :delim => [%r{\d}, %r{\.\.}]).match?("ab2cd..ef").should be_true
+      TextQuery.new("ef", :delim => [%r{\d}, %r{\.\.}]).match?("ab2cd..ef").should be_true
+      TextQuery.new("ab2cd", :delim => [%r{\d}, %r{\.\.}]).match?("ab2cd..ef").should be_true
+    end
+
+    it 'should accept mixed Strings and Regexps as delimiters' do
+      TextQuery.new("a", :delim => [%r{a{2,3}}]).match?("aab").should be_false
+      TextQuery.new("a", :delim => [%r{a{2,3}}, 'b']).match?("aab").should be_false
+      TextQuery.new("b", :delim => [%r{a{2,3}}, 'a']).match?("aab").should be_true
+    end
   end
 end

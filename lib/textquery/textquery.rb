@@ -96,6 +96,6 @@ class TextQuery
 
     def update_options(options)
       @options = {:delim => ' '}.merge(options)
-      @options[:delim] = "(#{[@options[:delim]].flatten.map { |opt| RegExp.escape(opt) }.join("|")})"
+      @options[:delim] = "(#{[@options[:delim]].flatten.map { |opt| opt.is_a?(Regexp) ? opt : RegExp.escape(opt) }.join("|")})"
     end
 end
