@@ -254,5 +254,10 @@ describe TextQuery do
       TextQuery.new("a", :delim => [%r{a{2,3}}, 'b']).match?("aab").should be_false
       TextQuery.new("b", :delim => [%r{a{2,3}}, 'a']).match?("aab").should be_true
     end
+
+    it 'should allow query to be traversed' do
+      TextQuery.new("a b").accept { |*a| a }.should == [ :and, [ :value, 'a' ], [ :value, 'b' ] ]
+      TextQuery.new("a OR b").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :value, 'b' ] ]
+    end
   end
 end

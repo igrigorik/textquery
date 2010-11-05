@@ -9,11 +9,19 @@ grammar TextQueryGrammar
       def eval(text, opt)
         operator.eval(op1.eval(text, opt), op2.eval(text, opt))
       end
+
+      def accept(&block)
+        operator.accept(op1.accept(&block), op2.accept(&block), &block)
+      end
     }
     /
     op1:value [\s]+ op2:expression {
         def eval(text, opt)
           op1.eval(text, opt) && op2.eval(text, opt)
+        end
+
+        def accept(&block)
+          block.call(:and, op1.accept(&block), op2.accept(&block))
         end
       }
   end
@@ -23,11 +31,19 @@ grammar TextQueryGrammar
       def eval(a,b)
         a && b
       end
+
+      def accept(a, b, &block)
+        block.call(:and, a, b)
+      end
     }
     /
     'OR' {
       def eval(a,b)
         a || b
+      end
+
+      def accept(a, b, &block)
+        block.call(:or, a, b)
       end
     }
   end
@@ -36,6 +52,10 @@ grammar TextQueryGrammar
     ('-' / 'NOT') {
       def eval(a)
         not a
+      end
+
+      def accept(a, &block)
+        block.call(:not, a)
       end
     }
   end
@@ -69,11 +89,19 @@ grammar TextQueryGrammar
        def eval(text, opt)
          expression.eval(text, opt)
        end
+
+       def accept(&block)
+         expression.accept(&block)
+       end
     }
     /
     operator:unary space value {
       def eval(text, opt)
         operator.eval(value.eval(text, opt))
+      end
+
+      def accept(&block)
+        operator.accept(value.accept(&block), &block)
       end
     }
     /
@@ -81,11 +109,19 @@ grammar TextQueryGrammar
       def eval(text, opt)
         double_quote_words.eval(text, opt)
       end
+
+      def accept(&block)
+        double_quote_words.accept(&block)
+      end
     }
     /
     single_quote space single_quote_words space single_quote {
       def eval(text, opt)
         single_quote_words.eval(text, opt)
+      end
+
+      def accept(&block)
+        single_quote_words.accept(&block)
       end
     }
     /
