@@ -204,6 +204,11 @@ describe TextQuery do
     q.parse("~更は出~ OR ~尽く~").eval(JP).should be_true
   end
 
+  it "should work with queries starting with numbers" do
+    q = TextQuery.new('3827')
+    q.parse('abc 123 3827 9382').should be_true
+  end
+
   it "should be case insensitive" do
     TextQuery.new("a", :ignorecase => true).match?("A b cD").should be_true
     TextQuery.new("a AND CD", :ignorecase => true).match?("A b cD").should be_true

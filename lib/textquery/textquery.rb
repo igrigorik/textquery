@@ -17,7 +17,7 @@ else
   RegExp::IGNORECACASE = Regexp::IGNORECASE
 end
 
-FUZZY = RegExp.new('(\d)*(~)?([^~]+)(~)?(\d)*$')
+FUZZY = RegExp.new('(?:(\d)*(~))?([^~]+)(?:(~)?(\d)*)$')
 
 class WordMatch < Treetop::Runtime::SyntaxNode
 
