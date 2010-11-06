@@ -52,6 +52,9 @@ class WordMatch < Treetop::Runtime::SyntaxNode
     end
   end
 
+  def accept(&block)
+    block.call(:value, text_value)
+  end
 end
 
 Treetop.load File.dirname(__FILE__) + "/textquery_grammar"
@@ -87,6 +90,16 @@ class TextQuery
     end
   end
   alias :match? :eval
+
+  def accept(options = {}, &block)
+    update_options(options) if not options.empty?
+
+    if @query
+      @query.accept(&block)
+    else
+      raise TextQueryError, 'no query specified'
+    end
+  end
 
   def terminal_failures
     @parser.terminal_failures
