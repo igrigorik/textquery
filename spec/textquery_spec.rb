@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 require "rubygems"
-require "spec"
+require "rspec"
 require "pp"
 
 require "lib/textquery"
@@ -241,7 +241,7 @@ describe TextQuery do
     it 'should not match just the delimiter' do
       TextQuery.new("a*b", :delim => ["*", "<"]).match?("over<under").should be_false
     end
-    
+
     it 'should accept a Regexp as a delimiter' do
       TextQuery.new("a", :delim => [%r{\b}]).match?("a.b").should be_true
       TextQuery.new("a b", :delim => [%r{\b}]).match?("a.b").should be_true
