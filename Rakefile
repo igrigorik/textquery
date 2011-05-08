@@ -1,19 +1,10 @@
-require 'rake'
+require 'bundler'
+Bundler::GemHelper.install_tasks
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "textquery"
-    gemspec.summary = "Evaluate any text against a collection of match rules"
-    gemspec.description = gemspec.summary
-    gemspec.email = "ilya@igvita.com"
-    gemspec.homepage = "http://github.com/igrigorik/textquery"
-    gemspec.authors = ["Ilya Grigorik"]
-    gemspec.add_dependency("treetop")
-    gemspec.rubyforge_project = "textquery"
-  end
+require 'rspec/core/rake_task'
 
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
-end
+desc "Run all RSpec tests"
+RSpec::Core::RakeTask.new(:spec)
+
+task :default => :spec
+task :test => [:spec]
