@@ -137,6 +137,13 @@ describe TextQuery do
     parse('"to be" OR NOT "to be"').eval("to be").should be_true
   end
 
+  it "should accept unbalanced quotes" do
+    parse("awesome").eval("M&M's are awesome").should be_true
+    parse("M&M's").eval("M&M's are awesome").should be_true
+    parse("M&M's AND awesome").eval("M&M's are awesome").should be_true
+    parse("M&M's AND fail").eval("M&M's are awesome").should be_false
+  end
+
   it "should accept mixed quotes inside the exact match queries" do
     parse("seattle's best").eval("seattle's best").should be_true
 
