@@ -1,10 +1,9 @@
 # encoding: UTF-8
 
-require "rubygems"
 require "rspec"
 require "pp"
 
-require "lib/textquery"
+require "textquery"
 
 # Resources:
 # - http://github.com/nathansobo/treetop
