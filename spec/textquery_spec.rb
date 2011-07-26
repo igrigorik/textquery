@@ -14,7 +14,7 @@ require "textquery"
 #
 
 describe TextQuery do
-  before(:all) do
+  before(:each) do
     @parser = TextQuery.new
   end
 
@@ -134,6 +134,11 @@ describe TextQuery do
     # shakespeare got nothin' on ruby...
     parse("'to be' OR NOT 'to be'").eval("to be").should be_true
     parse('"to be" OR NOT "to be"').eval("to be").should be_true
+  end
+
+  it "should not swallow spaces inside quoted strings" do
+    parse('" some text "').eval("this is some text", :delim => '').should be_false
+    parse('" some text "').eval("this is some text that should match", :delim => '').should be_true
   end
 
   it "should accept unbalanced quotes" do
@@ -269,6 +274,11 @@ describe TextQuery do
     it 'should allow query to be traversed' do
       TextQuery.new("a b").accept { |*a| a }.should == [ :and, [ :value, 'a' ], [ :value, 'b' ] ]
       TextQuery.new("a OR b").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :value, 'b' ] ]
+    end
+
+    it 'should not swallow spaces in quoted strings when traversed' do
+      TextQuery.new('" a "').accept { |*a| a }.should == [ :value, ' a ' ]
+
     end
   end
 end
