@@ -105,7 +105,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    double_quote space double_quote_words space double_quote {
+    double_quote double_quote_words double_quote {
       def eval(text, opt)
         double_quote_words.eval(text, opt)
       end
@@ -115,7 +115,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    single_quote space single_quote_words space single_quote {
+    single_quote single_quote_words single_quote {
       def eval(text, opt)
         single_quote_words.eval(text, opt)
       end
