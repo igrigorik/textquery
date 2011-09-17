@@ -14,6 +14,8 @@ Textquery is a simple PEG grammar with support for:
 - case (in)sensitive
 - custom delimeters
 
+TextQuery in the wild: [PostRank](http://postrank.com/), [PaperTrail](https://papertrailapp.com/), and others!
+
 ## Example
 
 ```ruby
@@ -38,6 +40,8 @@ TextQuery.new("2~a~2").match?("edaf")                     # => false
 
 TextQuery.new("a", :ignorecase => true).match?("A b cD")  # => true
 ```
+
+
 
 ## License
 
