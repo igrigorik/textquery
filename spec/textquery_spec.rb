@@ -31,12 +31,14 @@ describe TextQuery do
   end
 
   it "should accept logical AND" do
-    parse("a AND b").eval("c").should be_false
-    parse("a AND b").eval("a").should be_false
-    parse("a AND b").eval("b").should be_false
+    %w[& AND].each do |_and|
+      parse("a #{_and} b").eval("c").should be_false
+      parse("a #{_and} b").eval("a").should be_false
+      parse("a #{_and} b").eval("b").should be_false
 
-    parse("a AND b").eval("a b").should be_true
-    parse("a AND b").eval("a c b").should be_true
+      parse("a #{_and} b").eval("a b").should be_true
+      parse("a #{_and} b").eval("a c b").should be_true
+    end
   end
 
   it "should accept logical OR" do
@@ -52,14 +54,16 @@ describe TextQuery do
 
   it "should give precedence to AND" do
     # a AND (b OR c) == a AND b OR c
-    %w[/ OR].each do |_or|
-      parse("a AND b #{_or} c").eval("a b c").should be_true
-      parse("a AND b #{_or} c").eval("a b").should be_true
-      parse("a AND b #{_or} c").eval("a c").should be_true
+    %w[& AND].each do |_and|
+      %w[/ OR].each do |_or|
+        parse("a #{_and} b #{_or} c").eval("a b c").should be_true
+        parse("a #{_and} b #{_or} c").eval("a b").should be_true
+        parse("a #{_and} b #{_or} c").eval("a c").should be_true
 
-      parse("a AND b #{_or} c").eval("b c").should be_false
-      parse("a AND b #{_or} c").eval("c").should be_false
-      parse("a AND b #{_or} c").eval("b").should be_false
+        parse("a #{_and} b #{_or} c").eval("b c").should be_false
+        parse("a #{_and} b #{_or} c").eval("c").should be_false
+        parse("a #{_and} b #{_or} c").eval("b").should be_false
+      end
     end
   end
 
