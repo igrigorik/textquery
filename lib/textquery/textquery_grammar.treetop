@@ -37,7 +37,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    'OR' {
+    ('/' / 'OR') {
       def eval(a,b)
         a || b
       end
