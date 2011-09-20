@@ -236,6 +236,32 @@ describe TextQuery do
     TextQuery.new("a AND CD", :ignorecase => false).match?("A b cD").should be_false
   end
 
+  it "should provide a way to use reserved keyword as regular string in query" do
+    %w[AND &].each do |_and|
+      TextQuery.new("a '#{_and}' b").match?("a b").should be_false
+      TextQuery.new("a '#{_and}' b").match?("a b #{_and}").should be_true
+
+      TextQuery.new("'a #{_and} b'").match?("a b").should be_false
+      TextQuery.new("'a #{_and} b'").match?("a #{_and} b").should be_true
+    end
+
+    %w[OR /].each do |_or|
+      TextQuery.new("a '#{_or}' b").match?("a").should be_false
+      TextQuery.new("a '#{_or}' b").match?("a b #{_or}").should be_true
+
+      TextQuery.new("'a #{_or} b'").match?("a b").should be_false
+      TextQuery.new("'a #{_or} b'").match?("a #{_or} b").should be_true
+    end
+
+    %w[NOT -].each do |_not|
+      TextQuery.new("'#{_not}' a").match?("b").should be_false
+      TextQuery.new("'#{_not}' a").match?("a #{_not}").should be_true
+
+      TextQuery.new("'#{_not} a'").match?("b").should be_false
+      TextQuery.new("'#{_not} a'").match?("#{_not} a").should be_true
+    end
+  end
+
   context 'delimiters' do
     it 'should default to space delimiter' do
       TextQuery.new("a").match?("a b").should be_true
