@@ -31,32 +31,40 @@ describe TextQuery do
   end
 
   it "should accept logical AND" do
-    parse("a AND b").eval("c").should be_false
-    parse("a AND b").eval("a").should be_false
-    parse("a AND b").eval("b").should be_false
+    %w[& AND].each do |_and|
+      parse("a #{_and} b").eval("c").should be_false
+      parse("a #{_and} b").eval("a").should be_false
+      parse("a #{_and} b").eval("b").should be_false
 
-    parse("a AND b").eval("a b").should be_true
-    parse("a AND b").eval("a c b").should be_true
+      parse("a #{_and} b").eval("a b").should be_true
+      parse("a #{_and} b").eval("a c b").should be_true
+    end
   end
 
   it "should accept logical OR" do
-    parse("a OR b").eval("c").should be_false
-    parse("a OR b").eval("a").should be_true
-    parse("a OR b").eval("b").should be_true
+    %w[/ OR].each do |_or|
+      parse("a #{_or} b").eval("c").should be_false
+      parse("a #{_or} b").eval("a").should be_true
+      parse("a #{_or} b").eval("b").should be_true
 
-    parse("a OR b").eval("a b").should be_true
-    parse("a OR b").eval("a c b").should be_true
+      parse("a #{_or} b").eval("a b").should be_true
+      parse("a #{_or} b").eval("a c b").should be_true
+    end
   end
 
   it "should give precedence to AND" do
     # a AND (b OR c) == a AND b OR c
-    parse("a AND b OR c").eval("a b c").should be_true
-    parse("a AND b OR c").eval("a b").should be_true
-    parse("a AND b OR c").eval("a c").should be_true
+    %w[& AND].each do |_and|
+      %w[/ OR].each do |_or|
+        parse("a #{_and} b #{_or} c").eval("a b c").should be_true
+        parse("a #{_and} b #{_or} c").eval("a b").should be_true
+        parse("a #{_and} b #{_or} c").eval("a c").should be_true
 
-    parse("a AND b OR c").eval("b c").should be_false
-    parse("a AND b OR c").eval("c").should be_false
-    parse("a AND b OR c").eval("b").should be_false
+        parse("a #{_and} b #{_or} c").eval("b c").should be_false
+        parse("a #{_and} b #{_or} c").eval("c").should be_false
+        parse("a #{_and} b #{_or} c").eval("b").should be_false
+      end
+    end
   end
 
   it "should accept logical NOT" do
@@ -226,6 +234,32 @@ describe TextQuery do
 
     TextQuery.new("a", :ignorecase => false).match?("A b cD").should be_false
     TextQuery.new("a AND CD", :ignorecase => false).match?("A b cD").should be_false
+  end
+
+  it "should provide a way to use reserved keyword as regular string in query" do
+    %w[AND &].each do |_and|
+      TextQuery.new("a '#{_and}' b").match?("a b").should be_false
+      TextQuery.new("a '#{_and}' b").match?("a b #{_and}").should be_true
+
+      TextQuery.new("'a #{_and} b'").match?("a b").should be_false
+      TextQuery.new("'a #{_and} b'").match?("a #{_and} b").should be_true
+    end
+
+    %w[OR /].each do |_or|
+      TextQuery.new("a '#{_or}' b").match?("a").should be_false
+      TextQuery.new("a '#{_or}' b").match?("a b #{_or}").should be_true
+
+      TextQuery.new("'a #{_or} b'").match?("a b").should be_false
+      TextQuery.new("'a #{_or} b'").match?("a #{_or} b").should be_true
+    end
+
+    %w[NOT -].each do |_not|
+      TextQuery.new("'#{_not}' a").match?("b").should be_false
+      TextQuery.new("'#{_not}' a").match?("a #{_not}").should be_true
+
+      TextQuery.new("'#{_not} a'").match?("b").should be_false
+      TextQuery.new("'#{_not} a'").match?("#{_not} a").should be_true
+    end
   end
 
   context 'delimiters' do

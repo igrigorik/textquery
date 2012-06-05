@@ -27,7 +27,7 @@ grammar TextQueryGrammar
   end
 
   rule binary
-    'AND' {
+    ('&' /'AND') {
       def eval(a,b)
         a && b
       end
@@ -37,7 +37,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    'OR' {
+    ('/' / 'OR') {
       def eval(a,b)
         a || b
       end
