@@ -276,9 +276,21 @@ describe TextQuery do
       TextQuery.new("a OR b").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :value, 'b' ] ]
     end
 
+    it 'should allow query with attribute' do
+      pending "Adding tests before implementing code, like a good boy should" do
+	TextQuery.new("tag:b").accept { |*a| a }.should == [ :attribute, 'tag', [ :value, 'b' ] ]
+	TextQuery.new("a OR tag:b").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :attribute, 'tag', [ :value, 'b' ] ] ]
+	TextQuery.new("a OR tag:'b c'").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :attribute, 'tag', [ :value, 'b c' ] ] ]
+	TextQuery.new("a -tag:'b c'").accept { |*a| a }.should == [ :and, [ :value, 'a' ], [ :not, [ :attribute, 'tag', [ :value, 'b c' ] ] ] ]
+      end
+    end
+
+    it 'should allow query with syntax similar to attributes' do
+      TextQuery.new("notatag;b").accept { |*a| a }.should == [ :value, 'notatag;b' ]
+    end
+
     it 'should not swallow spaces in quoted strings when traversed' do
       TextQuery.new('" a "').accept { |*a| a }.should == [ :value, ' a ' ]
-
     end
   end
 end
