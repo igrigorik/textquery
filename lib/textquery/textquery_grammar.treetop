@@ -1,11 +1,11 @@
 grammar TextQueryGrammar
 
   rule expression
-     logical / value
+     logical / term
   end
 
   rule logical
-    op1:value space operator:binary space op2:expression {
+    op1:term space operator:binary space op2:expression {
       def eval(text, opt)
         operator.eval(op1.eval(text, opt), op2.eval(text, opt))
       end
@@ -15,7 +15,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    op1:value [\s]+ op2:expression {
+    op1:term [\s]+ op2:expression {
         def eval(text, opt)
           op1.eval(text, opt) && op2.eval(text, opt)
         end
@@ -84,6 +84,35 @@ grammar TextQueryGrammar
     [^"]+ <WordMatch>
   end
 
+  rule alpha
+    # Any character except USASCII non-alphas. Pretty dodgey, but Treetop makes anything else rather hard
+    [^\x00-\x40\x5B-\x5E\x60\x7B-\x7F]
+  end
+
+  rule alphanumeric
+    alpha / [0-9]
+  end
+
+  rule attribute
+    alpha alphanumeric*
+  end
+
+  rule term
+    attribute ':' value
+    # If you wish to restrict the allowed attributes, add a sempred here:
+    # &{|s| is_valid_attribute(s[0].text_value) }
+    {
+      def eval(text, opt)
+	value.eval(text, opt)
+      end
+      def accept(&block)
+        block.call(:attribute, attribute.text_value, value.accept(&block))
+      end
+    }
+    /
+    value
+  end
+
   rule value
     '(' space expression space ')' {
        def eval(text, opt)
@@ -95,13 +124,13 @@ grammar TextQueryGrammar
        end
     }
     /
-    operator:unary space value {
+    operator:unary space term {
       def eval(text, opt)
-        operator.eval(value.eval(text, opt))
+        operator.eval(term.eval(text, opt))
       end
 
       def accept(&block)
-        operator.accept(value.accept(&block), &block)
+        operator.accept(term.accept(&block), &block)
       end
     }
     /

@@ -277,12 +277,10 @@ describe TextQuery do
     end
 
     it 'should allow query with attribute' do
-      pending "Adding tests before implementing code, like a good boy should" do
-	TextQuery.new("tag:b").accept { |*a| a }.should == [ :attribute, 'tag', [ :value, 'b' ] ]
-	TextQuery.new("a OR tag:b").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :attribute, 'tag', [ :value, 'b' ] ] ]
-	TextQuery.new("a OR tag:'b c'").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :attribute, 'tag', [ :value, 'b c' ] ] ]
-	TextQuery.new("a -tag:'b c'").accept { |*a| a }.should == [ :and, [ :value, 'a' ], [ :not, [ :attribute, 'tag', [ :value, 'b c' ] ] ] ]
-      end
+      TextQuery.new("tag:b").accept { |*a| a }.should == [ :attribute, 'tag', [ :value, 'b' ] ]
+      TextQuery.new("a OR tag:b").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :attribute, 'tag', [ :value, 'b' ] ] ]
+      TextQuery.new("a OR tag:'b c'").accept { |*a| a }.should == [ :or, [ :value, 'a' ], [ :attribute, 'tag', [ :value, 'b c' ] ] ]
+      TextQuery.new("a -tag:'b c'").accept { |*a| a }.should == [ :and, [ :value, 'a' ], [ :not, [ :attribute, 'tag', [ :value, 'b c' ] ] ] ]
     end
 
     it 'should allow query with syntax similar to attributes' do
