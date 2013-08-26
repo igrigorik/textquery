@@ -29,7 +29,7 @@ grammar TextQueryGrammar
   end
 
   rule binary
-    'AND' {
+    'AND' !alphanumeric {
       def eval(a,b)
         a && b
       end
@@ -39,7 +39,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    'OR' {
+    'OR' !alphanumeric {
       def eval(a,b)
         a || b
       end
@@ -51,7 +51,7 @@ grammar TextQueryGrammar
   end
 
   rule unary
-    ('-' / 'NOT') {
+    ('-' / 'NOT' !alphanumeric) {
       def eval(a)
         not a
       end
@@ -80,6 +80,15 @@ grammar TextQueryGrammar
 
   rule double_quote
     ["]
+  end
+
+  rule alpha
+    # Any character except USASCII non-alphas. Pretty dodgey, but Treetop makes anything else rather hard
+    [^\x00-\x40\x5B-\x5E\x60\x7B-\x7F]
+  end
+
+  rule alphanumeric
+    alpha / [0-9]
   end
 
   rule double_quote_words
