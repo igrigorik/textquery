@@ -193,6 +193,9 @@ describe TextQuery do
     parse("2~a~1").eval("daf").should be_false
     parse("1~a~2").eval("daf").should be_false
 
+    parse("a~10").eval("a1234567890").should be_true
+    parse("10~a").eval("1234567890a").should be_true
+
     parse("~a~3").eval("daffy").should be_true
     parse("a~1").eval("adf").should be_false
 

@@ -17,7 +17,7 @@ else
   RegExp::IGNORECACASE = Regexp::IGNORECASE
 end
 
-FUZZY = RegExp.new('(?:(\d)*(~))?([^~]+)(?:(~)?(\d)*)$')
+FUZZY = RegExp.new('(?:(?<startcount>\d*)(?<startfuzz>~))?(?<text>[^~]+)(?:(?<endfuzz>~)?(?<endcount>\d*))$')
 
 class WordMatch < Treetop::Runtime::SyntaxNode
 
@@ -32,11 +32,15 @@ class WordMatch < Treetop::Runtime::SyntaxNode
       fuzzy = FUZZY.match(query)
 
       q = []
-      q.push "."                                    if fuzzy[2]
-      q.push fuzzy[1].nil? ? "*" : "{#{fuzzy[1]}}"  if fuzzy[2]
-      q.push fuzzy[3]
-      q.push "."                                    if fuzzy[4]
-      q.push fuzzy[5].nil? ? "*" : "{#{fuzzy[5]}}"  if fuzzy[4]
+      if fuzzy[:startfuzz]
+	q.push "."
+	q.push fuzzy[:startcount].empty? ? "*" : "{#{fuzzy[:startcount]}}"
+      end
+      q.push fuzzy[:text]
+      if fuzzy[4]
+	q.push "."
+	q.push fuzzy[:endcount].empty? ? "*" : "{#{fuzzy[:endcount]}}"
+      end
       q = q.join
 
       regex = "(^|#{opt[:delim]})#{q}(#{opt[:delim]}|$)"
