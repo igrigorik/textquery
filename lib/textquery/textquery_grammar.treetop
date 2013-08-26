@@ -3,55 +3,57 @@
 grammar TextQueryGrammar
 
   rule expression
-     logical / term
+     alternates
   end
 
-  rule logical
-    op1:term space operator:binary space op2:expression {
+  rule alternates
+    c1:conjunction space or space c2:conjunction {
       def eval(text, opt)
-        operator.eval(op1.eval(text, opt), op2.eval(text, opt))
+        c1.eval(text, opt) || c2.eval(text, opt)
       end
 
       def accept(&block)
-        operator.accept(op1.accept(&block), op2.accept(&block), &block)
+        block.call(:or, c1.accept(&block), c2.accept(&block), &block)
       end
     }
     /
-    op1:term [\s]+ op2:expression {
-        def eval(text, opt)
-          op1.eval(text, opt) && op2.eval(text, opt)
-        end
-
-        def accept(&block)
-          block.call(:and, op1.accept(&block), op2.accept(&block))
-        end
-      }
+    conjunction
   end
 
-  rule binary
-    'AND' !alphanumeric {
-      def eval(a,b)
-        a && b
+  rule conjunction
+    !or op1:term space and space op2:conjunction {
+      def eval(text, opt)
+        op1.eval(text, opt) && op2.eval(text, opt)
       end
 
-      def accept(a, b, &block)
-        block.call(:and, a, b)
+      def accept(&block)
+        block.call(:and, op1.accept(&block), op2.accept(&block), &block)
       end
     }
     /
-    'OR' !alphanumeric {
-      def eval(a,b)
-        a || b
+    !or op1:term [\s]+ op2:conjunction {
+      def eval(text, opt)
+        op1.eval(text, opt) && op2.eval(text, opt)
       end
 
-      def accept(a, b, &block)
-        block.call(:or, a, b)
+      def accept(&block)
+        block.call(:and, op1.accept(&block), op2.accept(&block))
+      end
+    }
+    /
+    !or op1:term {
+      def eval(text, opt)
+        op1.eval(text, opt)
+      end
+
+      def accept(&block)
+        op1.accept(&block)
       end
     }
   end
 
   rule unary
-    ('-' / 'NOT' !alphanumeric) {
+    ('-' / not) {
       def eval(a)
         not a
       end
@@ -60,6 +62,18 @@ grammar TextQueryGrammar
         block.call(:not, a)
       end
     }
+  end
+
+  rule or
+    'OR' ![A-Za-z0-9]
+  end
+
+  rule and
+    'AND' ![A-Za-z0-9]
+  end
+
+  rule not
+    'NOT' ![A-Za-z0-9]
   end
 
   rule space
@@ -80,15 +94,6 @@ grammar TextQueryGrammar
 
   rule double_quote
     ["]
-  end
-
-  rule alpha
-    # Any character except USASCII non-alphas. Pretty dodgey, but Treetop makes anything else rather hard
-    [^\x00-\x40\x5B-\x5E\x60\x7B-\x7F]
-  end
-
-  rule alphanumeric
-    alpha / [0-9]
   end
 
   rule double_quote_words
@@ -165,6 +170,14 @@ grammar TextQueryGrammar
       end
     }
     /
-    word
+    !(or / and) word {
+      def eval(text, opt)
+        word.eval(text, opt)
+      end
+
+      def accept(&block)
+        word.accept(&block)
+      end
+    }
   end
 end
