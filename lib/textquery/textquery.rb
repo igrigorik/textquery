@@ -33,13 +33,13 @@ class WordMatch < Treetop::Runtime::SyntaxNode
 
       q = []
       if fuzzy[:startfuzz]
-	q.push "."
-	q.push fuzzy[:startcount].empty? ? "*" : "{#{fuzzy[:startcount]}}"
+        q.push "."
+        q.push fuzzy[:startcount].empty? ? "*" : "{#{fuzzy[:startcount]}}"
       end
       q.push fuzzy[:text]
       if fuzzy[4]
-	q.push "."
-	q.push fuzzy[:endcount].empty? ? "*" : "{#{fuzzy[:endcount]}}"
+        q.push "."
+        q.push fuzzy[:endcount].empty? ? "*" : "{#{fuzzy[:endcount]}}"
       end
       q = q.join
 
