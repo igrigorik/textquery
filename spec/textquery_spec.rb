@@ -28,16 +28,16 @@ describe TextQuery do
     parse("text").eval("some textstring").should be_false
     parse("text").eval("string of texts stuff").should be_false
     parse("$^").eval("string of $^* stuff").should be_false
+    parse("NOTEWORTHY").eval("NOTEWORTHY string of EWORTHY stuff").should be_true
     parse("NOTtext").eval("string of stuff").should be_false
-    parse("NOTtext").eval("string of NOTtext stuff with text").should be_true
   end
 
   it "should accept logical AND" do
     parse("a AND b").eval("c").should be_false
     parse("a AND b").eval("a").should be_false
     parse("a AND b").eval("b").should be_false
-    parse("a ANDb").eval("a b").should be_false
-    parse("a ANDb").eval("a ANDb").should be_true
+    parse("ORVILLE ANDREWS").eval("ORVILLE DREWS").should be_false
+    parse("ORVILLE ANDREWS").eval("ANDREWS ORVILLE").should be_true
 
     parse("a AND b").eval("a b").should be_true
     parse("a AND b").eval("a c b").should be_true
@@ -45,9 +45,9 @@ describe TextQuery do
 
   it "should accept logical OR" do
     parse("a OR b").eval("c").should be_false
-    parse("a ORb").eval("b").should be_false
     parse("a OR b").eval("a").should be_true
     parse("a OR b").eval("b").should be_true
+    parse("ANDREWS ORVILLE").eval("VILLE").should be_false
 
     parse("a OR b").eval("a b").should be_true
     parse("a OR b").eval("a c b").should be_true
