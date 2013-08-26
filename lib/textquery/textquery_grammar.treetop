@@ -1,3 +1,5 @@
+# Encoding: UTF-8
+
 grammar TextQueryGrammar
 
   rule expression
