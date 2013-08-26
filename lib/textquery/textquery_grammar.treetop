@@ -1,49 +1,59 @@
 grammar TextQueryGrammar
 
   rule expression
-     logical / value
+     alternates / value
   end
 
-  rule logical
-    op1:value space operator:binary space op2:expression {
+  rule alternates
+    c1:conjunction space or space c2:conjunction {
       def eval(text, opt)
-        operator.eval(op1.eval(text, opt), op2.eval(text, opt))
+        c1.eval(text, opt) || c2.eval(text, opt)
       end
 
       def accept(&block)
-        operator.accept(op1.accept(&block), op2.accept(&block), &block)
+        block.call(:or, c1.accept(&block), c2.accept(&block), &block)
       end
     }
     /
-    op1:value [\s]+ op2:expression {
-        def eval(text, opt)
-          op1.eval(text, opt) && op2.eval(text, opt)
-        end
-
-        def accept(&block)
-          block.call(:and, op1.accept(&block), op2.accept(&block))
-        end
-      }
+    conjunction
   end
 
-  rule binary
-    'AND' {
-      def eval(a,b)
-        a && b
+  rule or
+    'OR' ![A-Za-z0-9]
+  end
+
+  rule and
+    'AND' ![A-Za-z0-9]
+  end
+
+  rule conjunction
+    !or op1:value space and space op2:conjunction {
+      def eval(text, opt)
+        op1.eval(text, opt) && op2.eval(text, opt)
       end
 
-      def accept(a, b, &block)
-        block.call(:and, a, b)
+      def accept(&block)
+        block.call(:and, op1.accept(&block), op2.accept(&block), &block)
       end
     }
     /
-    'OR' {
-      def eval(a,b)
-        a || b
+    !or op1:value [\s]+ op2:conjunction {
+      def eval(text, opt)
+        op1.eval(text, opt) && op2.eval(text, opt)
       end
 
-      def accept(a, b, &block)
-        block.call(:or, a, b)
+      def accept(&block)
+        block.call(:and, op1.accept(&block), op2.accept(&block))
+      end
+    }
+    /
+    !or op1:value {
+      def eval(text, opt)
+        op1.eval(text, opt)
+      end
+
+      def accept(&block)
+        op1.accept(&block)
       end
     }
   end
@@ -125,6 +135,14 @@ grammar TextQueryGrammar
       end
     }
     /
-    word
+    !(or / and) word {
+      def eval(text, opt)
+        word.eval(text, opt)
+      end
+
+      def accept(&block)
+        word.accept(&block)
+      end
+    }
   end
 end
