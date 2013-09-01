@@ -26,6 +26,10 @@ grammar TextQueryGrammar
     'AND' ![A-Za-z0-9]
   end
 
+  rule not
+    'NOT' ![A-Za-z0-9]
+  end
+
   rule conjunction
     !or op1:value space and space op2:conjunction {
       def eval(text, opt)
@@ -59,7 +63,7 @@ grammar TextQueryGrammar
   end
 
   rule unary
-    ('-' / 'NOT') {
+    ('-' / not) {
       def eval(a)
         not a
       end
