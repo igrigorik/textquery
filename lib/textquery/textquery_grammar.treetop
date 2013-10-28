@@ -5,7 +5,7 @@ grammar TextQueryGrammar
   end
 
   rule alternates
-    c1:conjunction space or space c2:conjunction {
+    c1:conjunction space or space c2:alternates {
       def eval(text, opt)
         c1.eval(text, opt) || c2.eval(text, opt)
       end
@@ -16,18 +16,6 @@ grammar TextQueryGrammar
     }
     /
     conjunction
-  end
-
-  rule or
-    'OR' ![A-Za-z0-9]
-  end
-
-  rule and
-    'AND' ![A-Za-z0-9]
-  end
-
-  rule not
-    'NOT' ![A-Za-z0-9]
   end
 
   rule conjunction
@@ -72,6 +60,18 @@ grammar TextQueryGrammar
         block.call(:not, a)
       end
     }
+  end
+
+  rule or
+    'OR' ![A-Za-z0-9]
+  end
+
+  rule and
+    'AND' ![A-Za-z0-9]
+  end
+
+  rule not
+    'NOT' ![A-Za-z0-9]
   end
 
   rule space
