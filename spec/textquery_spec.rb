@@ -36,21 +36,25 @@ describe TextQuery do
     parse("a AND b").eval("c").should be_false
     parse("a AND b").eval("a").should be_false
     parse("a AND b").eval("b").should be_false
+    parse("a AND b AND c").eval("a b").should be_false
     parse("ORVILLE ANDREWS").eval("ORVILLE DREWS").should be_false
     parse("ORVILLE ANDREWS").eval("ANDREWS ORVILLE").should be_true
 
     parse("a AND b").eval("a b").should be_true
     parse("a AND b").eval("a c b").should be_true
+    parse("a AND b AND c").eval("a c b").should be_true
   end
 
   it "should accept logical OR" do
     parse("a OR b").eval("c").should be_false
     parse("a OR b").eval("a").should be_true
     parse("a OR b").eval("b").should be_true
+    parse("a OR b OR c").eval("d").should be_false
     parse("ANDREWS ORVILLE").eval("VILLE").should be_false
 
     parse("a OR b").eval("a b").should be_true
     parse("a OR b").eval("a c b").should be_true
+    parse("a OR b OR c").eval("a c b").should be_true
   end
 
   it "should give precedence to AND" do

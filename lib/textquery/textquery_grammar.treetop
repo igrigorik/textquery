@@ -7,7 +7,7 @@ grammar TextQueryGrammar
   end
 
   rule alternates
-    c1:conjunction space or space c2:conjunction {
+    c1:conjunction space or space c2:alternates {
       def eval(text, opt)
         c1.eval(text, opt) || c2.eval(text, opt)
       end
