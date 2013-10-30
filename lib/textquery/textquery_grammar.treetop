@@ -118,7 +118,7 @@ grammar TextQueryGrammar
     # &{|s| is_valid_attribute(s[0].text_value) }
     {
       def eval(text, opt)
-	value.eval(text, opt)
+        value.eval(text, opt)
       end
       def accept(&block)
         block.call(:attribute, attribute.text_value, value.accept(&block))
