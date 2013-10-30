@@ -81,7 +81,7 @@ class TextQueryGrammarParser
 
   def _nt_attribute_delimiter
     attribute_delimiter = options.has_key?(:attribute_delimiter) ? options[:attribute_delimiter] : ':'
-    if attribute_delimiter && has_terminal?(attribute_delimiter, false, index)
+    if attribute_delimiter && attribute_delimiter.size > 0 && has_terminal?(attribute_delimiter, false, index)
       attribute_delimiter_size = attribute_delimiter.size
       r0 = instantiate_node(SyntaxNode,input, index...(index + attribute_delimiter_size))
       @index += attribute_delimiter_size
