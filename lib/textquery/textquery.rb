@@ -66,12 +66,39 @@ Treetop.load File.dirname(__FILE__) + "/textquery_grammar"
 class TextQueryError < RuntimeError
 end
 
+class TextQueryGrammarParser
+  attr_reader :options
+
+  def initialize options = {}
+    @options = options
+    super()
+  end
+
+  def update_options(options)
+    @options = {:delim => ' '}.merge(options)
+    @options[:delim] = "(#{[@options[:delim]].flatten.map { |opt| opt.is_a?(Regexp) ? opt : RegExp.escape(opt) }.join("|")})"
+  end
+
+  def _nt_attribute_delimiter
+    attribute_delimiter = options.has_key?(:attribute_delimiter) ? options[:attribute_delimiter] : ':'
+    if attribute_delimiter && attribute_delimiter.size > 0 && has_terminal?(attribute_delimiter, false, index)
+      attribute_delimiter_size = attribute_delimiter.size
+      r0 = instantiate_node(SyntaxNode,input, index...(index + attribute_delimiter_size))
+      @index += attribute_delimiter_size
+    else
+      terminal_parse_failure(attribute_delimiter)
+      r0 = nil
+    end
+    r0
+  end
+end
+
 class TextQuery
   def initialize(query = '', options = {})
-    @parser = TextQueryGrammarParser.new
+    @parser = TextQueryGrammarParser.new options
     @query  = nil
 
-    update_options(options)
+    @parser.update_options(options)
     parse(query) if not query.empty?
   end
 
@@ -85,10 +112,10 @@ class TextQuery
   end
 
   def eval(input, options = {})
-    update_options(options) if not options.empty?
+    @parser.update_options(options) if not options.empty?
 
     if @query
-      @query.eval(input, @options)
+      @query.eval(input, @parser.options)
     else
       raise TextQueryError, 'no query specified'
     end
@@ -96,7 +123,7 @@ class TextQuery
   alias :match? :eval
 
   def accept(options = {}, &block)
-    update_options(options) if not options.empty?
+    @parser.update_options(options) if not options.empty?
 
     if @query
       @query.accept(&block)
@@ -109,10 +136,4 @@ class TextQuery
     @parser.terminal_failures
   end
 
-  private
-
-    def update_options(options)
-      @options = {:delim => ' '}.merge(options)
-      @options[:delim] = "(#{[@options[:delim]].flatten.map { |opt| opt.is_a?(Regexp) ? opt : RegExp.escape(opt) }.join("|")})"
-    end
 end

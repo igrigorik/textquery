@@ -2,3 +2,5 @@ pkg
 .bundle
 Gemfile.lock
 .DS_Store
+.*.swp
+.*.swo

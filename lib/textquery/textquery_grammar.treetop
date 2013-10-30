@@ -1,7 +1,9 @@
+# Encoding: UTF-8
+
 grammar TextQueryGrammar
 
   rule expression
-     alternates / value
+     alternates
   end
 
   rule alternates
@@ -19,7 +21,7 @@ grammar TextQueryGrammar
   end
 
   rule conjunction
-    !or op1:value space and space op2:conjunction {
+    !or op1:term space and space op2:conjunction {
       def eval(text, opt)
         op1.eval(text, opt) && op2.eval(text, opt)
       end
@@ -29,7 +31,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    !or op1:value [\s]+ op2:conjunction {
+    !or op1:term [\s]+ op2:conjunction {
       def eval(text, opt)
         op1.eval(text, opt) && op2.eval(text, opt)
       end
@@ -39,7 +41,7 @@ grammar TextQueryGrammar
       end
     }
     /
-    !or op1:value {
+    !or op1:term {
       def eval(text, opt)
         op1.eval(text, opt)
       end
@@ -98,6 +100,34 @@ grammar TextQueryGrammar
     [^"]+ <WordMatch>
   end
 
+  rule alpha
+    [[:alpha:]]
+  end
+
+  rule alphanumeric
+    alpha / [0-9]
+  end
+
+  rule attribute
+    alpha alphanumeric*
+  end
+
+  rule term
+    attribute attribute_delimiter value
+    # If you wish to restrict the allowed attributes, add a sempred here:
+    # &{|s| is_valid_attribute(s[0].text_value) }
+    {
+      def eval(text, opt)
+	value.eval(text, opt)
+      end
+      def accept(&block)
+        block.call(:attribute, attribute.text_value, value.accept(&block))
+      end
+    }
+    /
+    value
+  end
+
   rule value
     '(' space expression space ')' {
        def eval(text, opt)
@@ -109,13 +139,13 @@ grammar TextQueryGrammar
        end
     }
     /
-    operator:unary space value {
+    operator:unary space term {
       def eval(text, opt)
-        operator.eval(value.eval(text, opt))
+        operator.eval(term.eval(text, opt))
       end
 
       def accept(&block)
-        operator.accept(value.accept(&block), &block)
+        operator.accept(term.accept(&block), &block)
       end
     }
     /

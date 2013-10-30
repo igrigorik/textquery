@@ -12,7 +12,8 @@ Textquery is a simple PEG grammar with support for:
 - 'quoted strings'
 - fuzzy matching
 - case (in)sensitive
-- custom delimeters
+- attribute tags (e.g. surname:Smith)
+- custom delimiters (default is whitespace for words, : for attributes)
 
 TextQuery in the wild: [PostRank](http://postrank.com/), [PaperTrail](https://papertrailapp.com/), and others!
 
