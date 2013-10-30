@@ -295,6 +295,14 @@ describe TextQuery do
       TextQuery.new("a -tag:'b c'").accept { |*a| a }.should == [ :and, [ :value, 'a' ], [ :not, [ :attribute, 'tag', [ :value, 'b c' ] ] ] ]
     end
 
+    it 'should allow query with attribute using custom delimiter' do
+      TextQuery.new("tag#b", :attribute_delimiter => '#').accept { |*a| a }.should == [ :attribute, 'tag', [ :value, 'b' ] ]
+    end
+
+    it 'should allow query disabling the attribute delimiter' do
+      TextQuery.new("tag:b", :attribute_delimiter => nil).accept { |*a| a }.should == [ :value, 'tag:b' ]
+    end
+
     it 'should allow query with syntax similar to attributes' do
       TextQuery.new("notatag;b").accept { |*a| a }.should == [ :value, 'notatag;b' ]
     end

@@ -101,8 +101,7 @@ grammar TextQueryGrammar
   end
 
   rule alpha
-    # Any character except USASCII non-alphas. Pretty dodgey, but Treetop makes anything else rather hard
-    [^\x00-\x40\x5B-\x5E\x60\x7B-\x7F]
+    [[:alpha:]]
   end
 
   rule alphanumeric
@@ -114,7 +113,7 @@ grammar TextQueryGrammar
   end
 
   rule term
-    attribute ':' value
+    attribute attribute_delimiter value
     # If you wish to restrict the allowed attributes, add a sempred here:
     # &{|s| is_valid_attribute(s[0].text_value) }
     {
